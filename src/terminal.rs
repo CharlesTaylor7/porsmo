@@ -1,6 +1,6 @@
 use crate::{error::PorsmoError, prelude::*};
 use crossterm::{
-    cursor::{MoveTo, Hide, Show},
+    cursor::{Hide, MoveTo, Show},
     execute,
     style::Color,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -35,13 +35,8 @@ impl TerminalHandler {
 impl Drop for TerminalHandler {
     fn drop(&mut self) {
         disable_raw_mode().expect("Failed to disable raw mode");
-        execute!(
-            stdout(),
-            Clear(ClearType::All),
-            Show,
-            LeaveAlternateScreen,
-        )
-        .expect("Failed to reset screen");
+        execute!(stdout(), Clear(ClearType::All), Show, LeaveAlternateScreen,)
+            .expect("Failed to reset screen");
     }
 }
 

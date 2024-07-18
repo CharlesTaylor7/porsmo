@@ -9,13 +9,13 @@ mod stopwatch;
 mod terminal;
 mod timer;
 
-use std::io::Write;
-use crate::input::{Command, get_event, TIMEOUT};
+use crate::input::{get_event, Command, TIMEOUT};
+use crate::pomodoro::PomodoroConfig;
 use clap::Parser;
 use cli::{Cli, CounterMode, PomoMode};
 use pomodoro::PomodoroUI;
-use crate::pomodoro::PomodoroConfig;
 use prelude::*;
+use std::io::Write;
 use stopwatch::StopwatchUI;
 use terminal::TerminalHandler;
 use timer::TimerUI;
@@ -38,11 +38,12 @@ fn main() -> Result<()> {
                 PomoMode::Custom {
                     work_time,
                     break_time,
-                    long_break,
                 },
-        }) => PomodoroUI::new(
-            PomodoroConfig::new(work_time, break_time, long_break)
-        ).run_ui(stdout)?,
+        }) => PomodoroUI::new(PomodoroConfig {
+            work_time,
+            break_time,
+        })
+        .run_ui(stdout)?,
         None => PomodoroUI::new(PomodoroConfig::short()).run_ui(stdout)?,
     }
     Ok(())
@@ -64,4 +65,3 @@ pub trait CounterUI: Sized {
         Ok(())
     }
 }
-

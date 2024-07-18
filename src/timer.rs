@@ -77,7 +77,10 @@ pub struct TimerUI {
 
 impl TimerUI {
     pub fn new(target: Duration) -> Self {
-        Self { target, ..Default::default() }
+        Self {
+            target,
+            ..Default::default()
+        }
     }
 }
 
@@ -92,4 +95,3 @@ impl CounterUI for TimerUI {
         timer_update(command, &mut self.stopwatch)
     }
 }
-

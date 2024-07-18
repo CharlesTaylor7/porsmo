@@ -14,15 +14,15 @@ pub struct Cli {
 pub enum CounterMode {
     /// alias: s, stopwatch, counts up until you tell it to stop
     #[command(name = "stopwatch", alias = "s")]
-    Stopwatch /* {
-        #[arg(
-            value_parser = parse_duration,
-            default_value = "0s",
-            value_name = "time"
-        )]
-        /// start from a particular time: example values: 30m 20m 40m 2h25m30s
-        start_time: Duration,
-    }*/,
+    Stopwatch, /* {
+                   #[arg(
+                       value_parser = parse_duration,
+                       default_value = "0s",
+                       value_name = "time"
+                   )]
+                   /// start from a particular time: example values: 30m 20m 40m 2h25m30s
+                   start_time: Duration,
+               }*/
     /// alias: t, timer, counts down until you tell it to stop, or it ends
     #[command(name = "timer", alias = "t")]
     Timer {
@@ -55,8 +55,5 @@ pub enum PomoMode {
         /// target break time: example values 30m 20m 40m 2h25m30s
         #[arg(value_parser = parse_duration, value_name = "break-time")]
         break_time: Duration,
-        /// target long break time: example values 30m 20m 40m 2h25m30s
-        #[arg(value_parser = parse_duration, value_name = "long-break-time")]
-        long_break: Duration,
     },
 }

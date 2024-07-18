@@ -16,14 +16,12 @@ pub enum Mode {
     #[default]
     Work,
     Break,
-    LongBreak,
 }
 
 #[derive(Copy, Clone, Debug)]
 pub struct PomodoroConfig {
     pub work_time: Duration,
     pub break_time: Duration,
-    pub long_break: Duration,
 }
 
 impl Default for PomodoroConfig {
@@ -33,19 +31,10 @@ impl Default for PomodoroConfig {
 }
 
 impl PomodoroConfig {
-    pub fn new(work_time: Duration, break_time: Duration, long_break: Duration) -> Self {
-        Self {
-            work_time,
-            break_time,
-            long_break,
-        }
-    }
-
     pub fn short() -> Self {
         Self {
             work_time: Duration::from_secs(25 * 60),
             break_time: Duration::from_secs(5 * 60),
-            long_break: Duration::from_secs(10 * 60),
         }
     }
 
@@ -53,7 +42,6 @@ impl PomodoroConfig {
         Self {
             work_time: Duration::from_secs(55 * 60),
             break_time: Duration::from_secs(10 * 60),
-            long_break: Duration::from_secs(20 * 60),
         }
     }
 
@@ -61,7 +49,6 @@ impl PomodoroConfig {
         match mode {
             Mode::Work => self.work_time,
             Mode::Break => self.break_time,
-            Mode::LongBreak => self.long_break,
         }
     }
 }
@@ -84,15 +71,11 @@ impl Default for Session {
 impl Session {
     pub fn next(self) -> Self {
         match self.mode {
-            Mode::Work if self.round % 4 == 0 => Self {
-                mode: Mode::LongBreak,
-                ..self
-            },
             Mode::Work => Self {
                 mode: Mode::Break,
                 ..self
             },
-            Mode::Break | Mode::LongBreak => Self {
+            Mode::Break => Self {
                 mode: Mode::Work,
                 round: self.round + 1,
             },
@@ -106,9 +89,8 @@ const SKIP_CONTROLS: &str = "[Enter]: Yes, [Q/N]: No";
 
 fn default_title(mode: Mode) -> &'static str {
     match mode {
-        Mode::Work => "Pomodoro (Work)",
-        Mode::Break => "Pomodoro (Break)",
-        Mode::LongBreak => "Pomodoro (Long Break)",
+        Mode::Work => "Pomodoro Work",
+        Mode::Break => "Pomodoro Break",
     }
 }
 
@@ -116,7 +98,6 @@ fn end_title(next_mode: Mode) -> &'static str {
     match next_mode {
         Mode::Work => "Break has ended! Start work?",
         Mode::Break => "Work has ended! Start break?",
-        Mode::LongBreak => "Work has ended! Start a long break",
     }
 }
 
@@ -124,7 +105,6 @@ fn alert_message(next_mode: Mode) -> (&'static str, &'static str) {
     match next_mode {
         Mode::Work => ("Your break ended!", "Time for some work"),
         Mode::Break => ("Pomodoro ended!", "Time for a short break"),
-        Mode::LongBreak => ("Pomodoro 4 sessions complete!", "Time for a long break"),
     }
 }
 
@@ -150,19 +130,32 @@ pub struct PomodoroUI {
 
 impl PomodoroUI {
     pub fn new(config: PomodoroConfig) -> Self {
-        Self { config, ..Default::default() }
+        Self {
+            config,
+            ..Default::default()
+        }
     }
 }
 
 impl CounterUI for PomodoroUI {
     fn show(&mut self, out: &mut impl Write) -> Result<()> {
-        pomodoro_show(out, &self.config, &self.ui_mode,
-                      &self.session, &mut self.alerter)
+        pomodoro_show(
+            out,
+            &self.config,
+            &self.ui_mode,
+            &self.session,
+            &mut self.alerter,
+        )
     }
 
     fn update(&mut self, command: Command) {
-        pomodoro_update(command, &self.config,
-                        &mut self.alerter, &mut self.ui_mode, &mut self.session);
+        pomodoro_update(
+            command,
+            &self.config,
+            &mut self.alerter,
+            &mut self.ui_mode,
+            &mut self.session,
+        );
     }
 }
 
@@ -219,7 +212,6 @@ fn pomodoro_show(
             let (color, skip_to) = match session.next().mode {
                 Mode::Work => (Color::Red, "skip to work?"),
                 Mode::Break => (Color::Green, "skip to break?"),
-                Mode::LongBreak => (Color::Green, "skip to long break?"),
             };
             queue!(
                 out,

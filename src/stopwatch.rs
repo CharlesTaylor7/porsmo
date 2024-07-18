@@ -1,9 +1,9 @@
 use std::time::Instant;
 use std::{io::Write, time::Duration};
 
-use crate::{prelude::*, CounterUI};
 use crate::terminal::running_color;
 use crate::{format::format_duration, input::Command};
+use crate::{prelude::*, CounterUI};
 use crossterm::{
     cursor::{MoveTo, MoveToNextLine},
     queue,
@@ -109,4 +109,3 @@ impl CounterUI for StopwatchUI {
         }
     }
 }
-
